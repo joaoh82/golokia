@@ -126,6 +126,21 @@ func GetAttr(service, domain, bean, attr string) (interface{}, error) {
 	return resp.Value, nil
 }
 
+func GetAttrs(service, domain, bean string) (map[string]interface{}, error) {
+	resp, err := getAttr(service + "/jolokia/read/" + domain + ":" + bean)
+	if err != nil {
+		return nil, err
+	}
+	rmap, ok := resp.Value.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("golokia: GetAttrs response value is of type %T, but expected type is map[string]interface{}", rmap)
+	}
+	if len(rmap) == 0 {
+		return nil, fmt.Errorf("golokia: GetAttrs %s:%s doesn't have any attributes", domain, bean)
+	}
+	return rmap, nil
+}
+
 func ExecOp(service, domain, bean, operation string, value ...string) (interface{}, error) {
 	resp, err := getAttr(service + "/jolokia/exec/" + domain + ":" + bean + "/" + operation + "/" + strings.Join(value, "/"))
 	if err != nil {
@@ -224,6 +239,21 @@ func (c *Client) GetAttr(domain, bean, attr string) (interface{}, error) {
 		return "", err
 	}
 	return resp.Value, nil
+}
+
+func (c *Client) GetAttrs(domain, bean string) (interface{}, error) {
+	resp, err := c.getAttr("/jolokia/read/" + domain + ":" + bean)
+	if err != nil {
+		return "", err
+	}
+	rmap, ok := resp.Value.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("golokia: GetAttrs response value is of type %T, but expected type is map[string]interface{}", rmap)
+	}
+	if len(rmap) == 0 {
+		return nil, fmt.Errorf("golokia: GetAttrs %s:%s doesn't have any attributes", domain, bean)
+	}
+	return rmap, nil
 }
 
 func (c *Client) ExecOp(domain, bean, operation string, value ...string) (interface{}, error) {
