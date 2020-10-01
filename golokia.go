@@ -241,10 +241,10 @@ func (c *Client) GetAttr(domain, bean, attr string) (interface{}, error) {
 	return resp.Value, nil
 }
 
-func (c *Client) GetAttrs(domain, bean string) (interface{}, error) {
+func (c *Client) GetAttrs(domain, bean string) (map[string]interface{}, error) {
 	resp, err := c.getAttr("/jolokia/read/" + domain + ":" + bean)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	rmap, ok := resp.Value.(map[string]interface{})
 	if !ok {
